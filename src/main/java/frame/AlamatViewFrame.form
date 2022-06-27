@@ -15,13 +15,13 @@
         <properties/>
         <border type="none"/>
         <children>
-          <component id="d0b68" class="javax.swing.JLabel" binding="CariTextField">
+          <component id="d0b68" class="javax.swing.JLabel">
             <constraints border-constraint="West"/>
             <properties>
               <text value="Cari Nama"/>
             </properties>
           </component>
-          <component id="2192b" class="javax.swing.JTextField" binding="textField1" default-binding="true">
+          <component id="2192b" class="javax.swing.JTextField" binding="cariTextField">
             <constraints border-constraint="Center"/>
             <properties/>
           </component>
