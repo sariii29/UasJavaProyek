@@ -28,6 +28,14 @@ public class AlamatInputFrame extends JFrame{
         });
         simpanButton.addActionListener(e -> {
             String nama = namaTextField.getText();
+            if (nama.equals("")) {
+                JOptionPane.showMessageDialog(null,
+                        "Isi kata kunci pencarian",
+                        "Validasi kata kunci kosong",
+                        JOptionPane.WARNING_MESSAGE);
+                namaTextField.requestFocus();
+                return;
+            }
             Connection c = Koneksi.getConnection();
             PreparedStatement ps;
             try {

@@ -38,6 +38,14 @@ public class AlamatViewFrame extends JFrame{
             }
         });
         cariButton.addActionListener(e -> {
+            if (cariTextField.getText().equals("")) {
+                JOptionPane.showMessageDialog(null,
+                        "Isi kata kunci pencarian",
+                        "Validasi kata kunci kosong",
+                        JOptionPane.WARNING_MESSAGE);
+                cariTextField.requestFocus();
+                return;
+            }
             Connection c = Koneksi.getConnection();
             String keyword = "%" + cariTextField.getText() + "%";
             String searchSQL = "SELECT * FROM alamat WHERE nama like ?";
