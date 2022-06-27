@@ -82,6 +82,10 @@ public class AlamatViewFrame extends JFrame{
                 }
             }
         });
+        tambahButton.addActionListener(e -> {
+            AlamatInputFrame inputFrame = new AlamatInputFrame();
+            inputFrame.setVisible(true);
+        });
         isiTable();
         init();
     }
