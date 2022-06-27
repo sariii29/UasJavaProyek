@@ -86,6 +86,21 @@ public class AlamatViewFrame extends JFrame{
             AlamatInputFrame inputFrame = new AlamatInputFrame();
             inputFrame.setVisible(true);
         });
+        ubahButton.addActionListener(e -> {
+            int barisTerpilih = viewTable.getSelectedRow();
+            if (barisTerpilih < 0){
+                JOptionPane.showMessageDialog(
+                        null,
+                        "Pilih Data Dulu...");
+                return;
+            }
+            TableModel tm = viewTable.getModel();
+            int id = Integer.parseInt(tm.getValueAt(barisTerpilih,0).toString());
+            AlamatInputFrame inputFrame = new AlamatInputFrame();
+            inputFrame.setId(id);
+            inputFrame.isiKomponen();
+            inputFrame.setVisible(true);
+        });
         isiTable();
         init();
     }
