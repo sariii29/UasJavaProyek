@@ -59,12 +59,13 @@ public class PengunjungViewFrame extends JFrame{
                 ResultSet rs = ps.executeQuery();
                 DefaultTableModel dtm = (DefaultTableModel) viewTable.getModel();
                 dtm.setRowCount(0);
-                Object[] row = new Object[4];
+                Object[] row = new Object[5];
                 while (rs.next()) {
                     row[0] = rs.getInt("id");
                     row[1] = rs.getString("nama");
                     row[2] = rs.getString("nama_alamat");
                     row[3] = rs.getString("jenis_kelamin");
+                    row[4] = rs.getString("email");
                     dtm.addRow(row);
                 }
             } catch (SQLException ex) {
@@ -135,17 +136,19 @@ public class PengunjungViewFrame extends JFrame{
             Statement s = c.createStatement();
             ResultSet rs = s.executeQuery(selectSQL);
 
-            String header[] = {"Id","Nama Pengunjung","Alamat","Jenis Kelamin"};
+            String header[] = {"Id","Nama Pengunjung","Alamat","Jenis Kelamin","Email"};
             DefaultTableModel dtm = new DefaultTableModel(header,0);
             viewTable.setModel(dtm);
 
             viewTable.getColumnModel().getColumn(0).setMaxWidth(32);
-            Object[] row = new Object[4];
+            Object[] row = new Object[5];
             while (rs.next()){
                 row[0] = rs.getInt("id");
                 row[1] = rs.getString("nama");
                 row[2] = rs.getString("nama_alamat");
                 row[3] = rs.getString("jenis_kelamin");
+                row[4] = rs.getString("email");
+
                 dtm.addRow(row);
             }
         } catch (SQLException e) {

@@ -15,6 +15,7 @@ public class PengunjungInputFrame extends JFrame{
     private JComboBox alamatComboBox;
     private JRadioButton lakiLakiRadioButton;
     private JRadioButton perempuanRadioButton;
+    private JTextField emailTextField;
 
     private ButtonGroup jenisKelaminButtonGroup;
     private int id;
@@ -60,8 +61,17 @@ public class PengunjungInputFrame extends JFrame{
                         JOptionPane.WARNING_MESSAGE);
                 return;
             }
-            Connection c = Koneksi.getConnection();
-            PreparedStatement ps;
+            String Email = emailTextField.getText();
+            if (!Email.contains("@") || !Email.contains(".")) {
+                JOptionPane.showMessageDialog(null,
+                        "Isi dengan Email valid",
+                        "Validasi Email",
+                        JOptionPane.WARNING_MESSAGE);
+                emailTextField.requestFocus();
+                return;
+            }
+                Connection c = Koneksi.getConnection();
+                PreparedStatement ps;
             try {
                 if (id == 0) {
                     String cekSQL = "SELECT * FROM pengunjung WHERE nama = ? AND id != ?";
@@ -73,23 +83,25 @@ public class PengunjungInputFrame extends JFrame{
                         JOptionPane.showMessageDialog(null,
                                 "Data yang anda masukkan suda ada");
                     }else {
-                        String insertSQL = "INSERT INTO pengunjung (id, nama, alamat_id, jenis_kelamin) " +
-                                "VALUES (NULL, ?, ?, ?)";
+                        String insertSQL = "INSERT INTO pengunjung (id, nama, alamat_id, jenis_kelamin, email) " +
+                                "VALUES (NULL, ?, ?, ?, ?)";
                         ps = c.prepareStatement(insertSQL);
                         ps.setString(1, nama);
                         ps.setInt(2, alamatId);
                         ps.setString(3, jenisKelamin);
+                        ps.setString(4, Email);
                         ps.executeUpdate();
                         dispose();
                     }
                 } else {
-                    String updateSQL = "UPDATE pengunjung SET nama = ?, alamat_id = ?, jenis_kelamin = ? " +
+                    String updateSQL = "UPDATE pengunjung SET nama = ?, alamat_id = ?, jenis_kelamin = ?, email = ? " +
                             "WHERE id = ?";
                     ps = c.prepareStatement(updateSQL);
                     ps.setString(1, nama);
                     ps.setInt(2, alamatId);
                     ps.setString(3, jenisKelamin);
-                    ps.setInt(4, id);
+                    ps.setString(4, Email);
+                    ps.setInt(5, id);
                     ps.executeUpdate();
                     dispose();
                 }
