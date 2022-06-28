@@ -48,17 +48,22 @@ public class PengunjungViewFrame extends JFrame{
             }
             Connection c = Koneksi.getConnection();
             String keyword = "%" + cariTextField.getText() + "%";
-            String searchSQL = "SELECT * FROM pengunjung WHERE nama like ?";
+            String searchSQL = "SELECT K.*,B.nama AS nama_alamat " +
+                    "FROM pengunjung K " +
+                    "LEFT JOIN alamat B ON K.alamat_id = B.id " +
+                    "WHERE K.nama like ? OR B.nama like ?";
             try {
                 PreparedStatement ps = c.prepareStatement(searchSQL);
                 ps.setString(1, keyword);
+                ps.setString(2, keyword);
                 ResultSet rs = ps.executeQuery();
                 DefaultTableModel dtm = (DefaultTableModel) viewTable.getModel();
                 dtm.setRowCount(0);
-                Object[] row = new Object[2];
+                Object[] row = new Object[3];
                 while (rs.next()) {
                     row[0] = rs.getInt("id");
                     row[1] = rs.getString("nama");
+                    row[2] = rs.getString("nama_alamat");
                     dtm.addRow(row);
                 }
             } catch (SQLException ex) {
@@ -123,17 +128,21 @@ public class PengunjungViewFrame extends JFrame{
 
     public void isiTable(){
         Connection c = Koneksi.getConnection();
-        String selectSQL = "SELECT * FROM Pengunjung";
+        String selectSQL = "SELECT K.*,B.nama AS nama_alamat FROM pengunjung AS K " +
+                "LEFT JOIN alamat AS B ON K.alamat_id = B.id";
         try {
             Statement s = c.createStatement();
             ResultSet rs = s.executeQuery(selectSQL);
-            String header[] = {"Id","Nama Pengunjung"};
+
+            String header[] = {"Id","Nama Pengunjung","Alamat"};
             DefaultTableModel dtm = new DefaultTableModel(header,0);
             viewTable.setModel(dtm);
-            Object[] row = new Object[2];
+
+            Object[] row = new Object[3];
             while (rs.next()){
                 row[0] = rs.getInt("id");
                 row[1] = rs.getString("nama");
+                row[2] = rs.getString("nama_alamat");
                 dtm.addRow(row);
             }
         } catch (SQLException e) {

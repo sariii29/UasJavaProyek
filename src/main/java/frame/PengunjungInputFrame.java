@@ -1,12 +1,10 @@
 package frame;
 
+import helpers.ComboBoxItem;
 import helpers.Koneksi;
 
 import javax.swing.*;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 
 public class PengunjungInputFrame extends JFrame{
     private JPanel mainPanel;
@@ -14,6 +12,7 @@ public class PengunjungInputFrame extends JFrame{
     private JTextField namaTextField;
     private JButton simpanButton;
     private JButton batalButton;
+    private JComboBox alamatComboBox;
 
     private int id;
 
@@ -35,6 +34,16 @@ public class PengunjungInputFrame extends JFrame{
                 namaTextField.requestFocus();
                 return;
             }
+            ComboBoxItem item = (ComboBoxItem) alamatComboBox.getSelectedItem();
+            int alamatId = item.getValue();
+            if (alamatId == 0){
+                JOptionPane.showMessageDialog(null,
+                        "Pilih Alamat",
+                        "Validasi Combobox",
+                        JOptionPane.WARNING_MESSAGE);
+                alamatComboBox.requestFocus();
+                return;
+            }
             Connection c = Koneksi.getConnection();
             PreparedStatement ps;
             try {
@@ -48,17 +57,19 @@ public class PengunjungInputFrame extends JFrame{
                         JOptionPane.showMessageDialog(null,
                                 "Data yang anda masukkan suda ada");
                     }else {
-                        String insertSQL = "INSERT INTO pengunjung VALUES (NULL, ?)";
+                        String insertSQL = "INSERT INTO pengunjung (id, nama, alamat_id) VALUES (NULL, ?)";
                         ps = c.prepareStatement(insertSQL);
                         ps.setString(1, nama);
+                        ps.setInt(2, alamatId);
                         ps.executeUpdate();
                         dispose();
                     }
                 } else {
-                    String updateSQL = "UPDATE pengunjung SET nama = ? WHERE id = ?";
+                    String updateSQL = "UPDATE pengunjung SET nama = ?, alamat_id = ? WHERE id = ?";
                     ps = c.prepareStatement(updateSQL);
                     ps.setString(1, nama);
-                    ps.setInt(2, id);
+                    ps.setInt(2, alamatId);
+                    ps.setInt(3, id);
                     ps.executeUpdate();
                     dispose();
                 }
@@ -66,6 +77,7 @@ public class PengunjungInputFrame extends JFrame{
                 throw new RuntimeException(ex);
             }
         });
+        kustomisasiKomponen();
         init();
     }
 
@@ -88,9 +100,34 @@ public class PengunjungInputFrame extends JFrame{
             if (rs.next()) {
                 idTextField.setText(String.valueOf(rs.getInt("id")));
                 namaTextField.setText(rs.getString("nama"));
+                int alamatId = rs.getInt("alamat_id");
+                for (int i = 0; i < alamatComboBox.getItemCount(); i++) {
+                    alamatComboBox.setSelectedIndex(i);
+                    ComboBoxItem item = (ComboBoxItem) alamatComboBox.getSelectedItem();
+                    if (alamatId == item.getValue()) {
+                        break;
+                    }
+                }
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    public void kustomisasiKomponen() {
+        Connection c = Koneksi.getConnection();
+        String selectSQL = "SELECT * FROM alamat ORDER BY nama";
+        try {
+            Statement s = c.createStatement();
+            ResultSet rs = s.executeQuery(selectSQL);
+            alamatComboBox.addItem(new ComboBoxItem(0, "Pilih Alamat"));
+            while (rs.next()) {
+                alamatComboBox.addItem(new ComboBoxItem(
+                        rs.getInt("id"),
+                        rs.getString("nama")));
+            }
+        } catch (SQLException ex) {
+            throw new RuntimeException(ex);
         }
     }
 }
