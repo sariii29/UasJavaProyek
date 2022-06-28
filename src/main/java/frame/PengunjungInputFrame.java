@@ -13,7 +13,10 @@ public class PengunjungInputFrame extends JFrame{
     private JButton simpanButton;
     private JButton batalButton;
     private JComboBox alamatComboBox;
+    private JRadioButton lakiLakiRadioButton;
+    private JRadioButton perempuanRadioButton;
 
+    private ButtonGroup jenisKelaminButtonGroup;
     private int id;
 
     public void setId(int id){
@@ -44,6 +47,19 @@ public class PengunjungInputFrame extends JFrame{
                 alamatComboBox.requestFocus();
                 return;
             }
+            String jenisKelamin = "";
+            if (lakiLakiRadioButton.isSelected()){
+                jenisKelamin = "L";
+            }
+            else if (perempuanRadioButton.isSelected()){
+                jenisKelamin = "P";
+            } else {
+                JOptionPane.showMessageDialog(null,
+                        "Pilih Jenis Kelamin",
+                        "Validasi Data Kosong",
+                        JOptionPane.WARNING_MESSAGE);
+                return;
+            }
             Connection c = Koneksi.getConnection();
             PreparedStatement ps;
             try {
@@ -57,19 +73,23 @@ public class PengunjungInputFrame extends JFrame{
                         JOptionPane.showMessageDialog(null,
                                 "Data yang anda masukkan suda ada");
                     }else {
-                        String insertSQL = "INSERT INTO pengunjung (id, nama, alamat_id) VALUES (NULL, ?)";
+                        String insertSQL = "INSERT INTO pengunjung (id, nama, alamat_id, jenis_kelamin) " +
+                                "VALUES (NULL, ?, ?, ?)";
                         ps = c.prepareStatement(insertSQL);
                         ps.setString(1, nama);
                         ps.setInt(2, alamatId);
+                        ps.setString(3, jenisKelamin);
                         ps.executeUpdate();
                         dispose();
                     }
                 } else {
-                    String updateSQL = "UPDATE pengunjung SET nama = ?, alamat_id = ? WHERE id = ?";
+                    String updateSQL = "UPDATE pengunjung SET nama = ?, alamat_id = ?, jenis_kelamin = ? " +
+                            "WHERE id = ?";
                     ps = c.prepareStatement(updateSQL);
                     ps.setString(1, nama);
                     ps.setInt(2, alamatId);
-                    ps.setInt(3, id);
+                    ps.setString(3, jenisKelamin);
+                    ps.setInt(4, id);
                     ps.executeUpdate();
                     dispose();
                 }
@@ -109,6 +129,14 @@ public class PengunjungInputFrame extends JFrame{
                     }
                 }
             }
+            String jenisKelamin = rs.getString("jenis_kelamin");
+            if (jenisKelamin != null) {
+                if (jenisKelamin.equals("L")) {
+                    lakiLakiRadioButton.setSelected(true);
+                } else if (jenisKelamin.equals("P")) {
+                    perempuanRadioButton.setSelected(true);
+                }
+            }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -129,5 +157,8 @@ public class PengunjungInputFrame extends JFrame{
         } catch (SQLException ex) {
             throw new RuntimeException(ex);
         }
+        jenisKelaminButtonGroup = new ButtonGroup();
+        jenisKelaminButtonGroup.add(lakiLakiRadioButton);
+        jenisKelaminButtonGroup.add(perempuanRadioButton);
     }
 }
