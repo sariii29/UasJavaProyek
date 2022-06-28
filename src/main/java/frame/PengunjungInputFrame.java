@@ -1,5 +1,7 @@
 package frame;
 
+import com.github.lgooddatepicker.components.DatePicker;
+import com.github.lgooddatepicker.components.DatePickerSettings;
 import helpers.ComboBoxItem;
 import helpers.Koneksi;
 
@@ -16,6 +18,7 @@ public class PengunjungInputFrame extends JFrame{
     private JRadioButton lakiLakiRadioButton;
     private JRadioButton perempuanRadioButton;
     private JTextField emailTextField;
+    private DatePicker tanggalKunjunganDatePicker;
 
     private ButtonGroup jenisKelaminButtonGroup;
     private int id;
@@ -70,6 +73,15 @@ public class PengunjungInputFrame extends JFrame{
                 emailTextField.requestFocus();
                 return;
             }
+            String tanggalKunjungan = tanggalKunjunganDatePicker.getText();
+            if (tanggalKunjungan.equals("")){
+                JOptionPane.showMessageDialog(null,
+                        "Isi Tanggal Kunjungan",
+                        "Validasi Data Kosong",
+                        JOptionPane.WARNING_MESSAGE);
+                tanggalKunjunganDatePicker.requestFocus();
+                return;
+            }
                 Connection c = Koneksi.getConnection();
                 PreparedStatement ps;
             try {
@@ -83,25 +95,28 @@ public class PengunjungInputFrame extends JFrame{
                         JOptionPane.showMessageDialog(null,
                                 "Data yang anda masukkan suda ada");
                     }else {
-                        String insertSQL = "INSERT INTO pengunjung (id, nama, alamat_id, jenis_kelamin, email) " +
-                                "VALUES (NULL, ?, ?, ?, ?)";
+                        String insertSQL = "INSERT INTO pengunjung (id, nama, alamat_id, jenis_kelamin, " +
+                                "email, tanggal_kunjungan) " +
+                                "VALUES (NULL, ?, ?, ?, ?, ?)";
                         ps = c.prepareStatement(insertSQL);
                         ps.setString(1, nama);
                         ps.setInt(2, alamatId);
                         ps.setString(3, jenisKelamin);
                         ps.setString(4, Email);
+                        ps.setString(5, tanggalKunjungan);
                         ps.executeUpdate();
                         dispose();
                     }
                 } else {
-                    String updateSQL = "UPDATE pengunjung SET nama = ?, alamat_id = ?, jenis_kelamin = ?, email = ? " +
-                            "WHERE id = ?";
+                    String updateSQL = "UPDATE pengunjung SET nama = ?, alamat_id = ?, jenis_kelamin = ?, " +
+                            "email = ?, tanggal_kunjungan = ? WHERE id = ?";
                     ps = c.prepareStatement(updateSQL);
                     ps.setString(1, nama);
                     ps.setInt(2, alamatId);
                     ps.setString(3, jenisKelamin);
                     ps.setString(4, Email);
-                    ps.setInt(5, id);
+                    ps.setString(5, tanggalKunjungan);
+                    ps.setInt(6, id);
                     ps.executeUpdate();
                     dispose();
                 }
@@ -140,16 +155,18 @@ public class PengunjungInputFrame extends JFrame{
                         break;
                     }
                 }
-            }
-            String jenisKelamin = rs.getString("jenis_kelamin");
-            if (jenisKelamin != null) {
-                if (jenisKelamin.equals("L")) {
-                    lakiLakiRadioButton.setSelected(true);
-                } else if (jenisKelamin.equals("P")) {
-                    perempuanRadioButton.setSelected(true);
+                String jenisKelamin = rs.getString("jenis_kelamin");
+                if (jenisKelamin != null) {
+                    if (jenisKelamin.equals("L")) {
+                        lakiLakiRadioButton.setSelected(true);
+                    } else if (jenisKelamin.equals("P")) {
+                        perempuanRadioButton.setSelected(true);
+                    }
                 }
+                emailTextField.setText(rs.getString("email"));
+                tanggalKunjunganDatePicker.setText(rs.getString("tanggal_kunjungan"));
             }
-        } catch (SQLException e) {
+            } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
@@ -172,5 +189,9 @@ public class PengunjungInputFrame extends JFrame{
         jenisKelaminButtonGroup = new ButtonGroup();
         jenisKelaminButtonGroup.add(lakiLakiRadioButton);
         jenisKelaminButtonGroup.add(perempuanRadioButton);
+
+        DatePickerSettings dps = new DatePickerSettings();
+        dps.setFormatForDatesCommonEra("yyyy-MM-dd");
+        tanggalKunjunganDatePicker.setSettings(dps);
     }
 }
